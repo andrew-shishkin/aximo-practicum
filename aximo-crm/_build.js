@@ -193,6 +193,41 @@ put('<b id="sWon">—</b>', '<b id="sWon">' + money(sumStages(['Closed Won'])) +
 if (board.indexOf('window.AXIMO_CRM') === -1) throw new Error('Инлайн данных не удался');
 if (board.indexOf('src="data.js"') !== -1) throw new Error('Внешняя ссылка осталась');
 
+// ---- 4. board.md — доска текстом ------------------------------------------
+// Зачем: в облаке (особенно на телефоне) ученик не может открыть board.html — markdown-ссылка
+// на локальный файл не кликается, а карточка файла появляется не всегда. Поэтому делаем вторую,
+// гарантированно работающую форму: обычный markdown, который Claude просто показывает в чате.
+// Никаких тапов, ссылок и вложений. board.html остаётся для десктопа, где открывается нормально.
+const STAGE_ICON = {
+  New: '🔵', Qualified: '🟦', Demo: '🟩', Proposal: '🟨',
+  Negotiation: '🟧', Invoice: '🟪', 'Closed Won': '✅', 'Closed Lost': '⬜',
+};
+let md = '# Aximo CRM\n\n';
+md += '**Открытый пайплайн:** ' + money(sumStages(['New', 'Qualified', 'Demo', 'Proposal', 'Negotiation'])) +
+      ' · **Счета к оплате:** ' + money(sumStages(['Invoice'])) +
+      ' · **Выиграно:** ' + money(sumStages(['Closed Won'])) + '\n';
+for (const st of columns) {
+  const ds = CRM.deals.filter((d) => d.stage === st);
+  if (!ds.length) continue;
+  const sum = ds.reduce((a, d) => a + (d.amountUSD || 0), 0);
+  md += '\n## ' + (STAGE_ICON[st] || '•') + ' ' + LABEL[st] + ' — ' + ds.length + ' на ' + money(sum) + '\n\n';
+  for (const d of ds) {
+    const co = d.companyId ? (companyById[d.companyId] || {}).name : '';
+    const last = offDate(d, 'lastActivity') || offDate(d, 'created');
+    const owner = d.owner === 'You' ? 'на тебе' : d.owner;
+    const bits = [money(d.amountUSD), owner, rel(last)].filter(Boolean);
+    md += '- **' + d.name + '**' + (co ? ' · ' + co : '') + ' — ' + bits.join(' · ');
+    if (d.stage === 'Invoice' && d.invoiceIssuedDaysAgo != null) {
+      const over = d.invoiceIssuedDaysAgo - (d.paymentTermsDays || 0);
+      if (over > 0) md += ' · ⚠️ просрочка ' + over + ' дн';
+    }
+    if (d.closeReason) md += ' · ' + d.closeReason;
+    md += '\n';
+  }
+}
+md += '\n_Компаний: ' + CRM.companies.length + ' · Контактов: ' + CRM.contacts.length + '_\n';
+fs.writeFileSync(path.join(dir, 'board.md'), md);
+
 fs.writeFileSync(path.join(dir, 'board.html'), board);
 console.log('board.html пересобран из data.js (' + board.length + ' байт, ' +
   CRM.deals.length + ' сделок отрисовано статически)');
