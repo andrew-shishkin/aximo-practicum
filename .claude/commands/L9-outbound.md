@@ -1,6 +1,5 @@
 ---
 description: "Урок 9 — Холодный outbound: второй агент account-researcher (параллельно ресёрчит компании, ЛПР, почты через кастомный коннектор Hunter) + скилл cold-email для холодных писем."
-allowed-tools: Bash(python3:*), Bash(python:*), Read, Bash(rm:*)
 ---
 
 # Запуск урока 9 (служебный стаб)

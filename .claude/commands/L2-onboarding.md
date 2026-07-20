@@ -1,6 +1,5 @@
 ---
 description: "Урок 2 — Онбординг в Aximo: что такое CLAUDE.md, матрёшка контекста, функция @ (старт сюжетного интерактива)"
-allowed-tools: Bash(python3:*), Bash(python:*), Read, Bash(rm:*)
 ---
 
 # Запуск урока 2 (служебный стаб)

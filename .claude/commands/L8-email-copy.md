@@ -1,6 +1,5 @@
 ---
 description: "Урок 8 — Email Copy: по контексту заглохшей сделки пишем сильное письмо, которое её сдвигает, и пакуем приём в навык email-copy."
-allowed-tools: Bash(python3:*), Bash(python:*), Read, Bash(rm:*)
 ---
 
 # Запуск урока 8 (служебный стаб)

@@ -1,6 +1,5 @@
 ---
 description: "Урок 3 — Подключение к CRM: как Claude работает с данными сделок, демо живой CRM (HubSpot), MCP vs API"
-allowed-tools: Bash(python3:*), Bash(python:*), Read, Bash(rm:*)
 ---
 
 # Запуск урока 3 (служебный стаб)

@@ -1,6 +1,5 @@
 ---
 description: "Урок 6 — Квалификация входящего лида: домен из почты → сайт → обогащение (коннектор / API DataNewton) → проверка по ICP → скилл lead-qualify"
-allowed-tools: Bash(python3:*), Bash(python:*), Read, Bash(rm:*)
 ---
 
 # Запуск урока 6 (служебный стаб)

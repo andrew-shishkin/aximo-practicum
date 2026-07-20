@@ -1,6 +1,5 @@
 ---
 description: "Урок 7 — Подготовка к встрече: первый АГЕНТ call-prep (досье + батл-карта под звонок) и скилл call-summary (саммари звонка из транскрипта). Учим разницу Skill vs Agent."
-allowed-tools: Bash(python3:*), Bash(python:*), Read, Bash(rm:*)
 ---
 
 # Запуск урока 7 (служебный стаб)

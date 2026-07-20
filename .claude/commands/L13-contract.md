@@ -1,6 +1,5 @@
 ---
 description: "Урок 13 — Contract Review: устанавливаем готовый Skill юриста (Skills = shareable .md, и что такое Plugin), проверяем присланный договор по нашим красным линиям и готовим правки прямо в PDF."
-allowed-tools: Bash(python3:*), Bash(python:*), Read, Bash(rm:*)
 ---
 
 # Запуск урока 13 (служебный стаб)

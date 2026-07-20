@@ -1,6 +1,5 @@
 ---
 description: "Урок 4 — Утренний брифинг и приоритеты на день: вводим понятие Skill, Skill vs Agent, ученик создаёт первый скилл"
-allowed-tools: Bash(python3:*), Bash(python:*), Read, Bash(rm:*)
 ---
 
 # Запуск урока 4 (служебный стаб)
