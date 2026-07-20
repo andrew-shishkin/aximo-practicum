@@ -79,6 +79,51 @@
   .msg.in{border-color:#0ea5e9} .msg.out{border-color:#2563eb}
   .msg .h{font-size:11px;color:var(--muted);margin-bottom:2px}
   .empty{font-size:12px;color:var(--muted)}
+
+  /* Табы прячут секции только когда JS реально работает: класс js-on ставит скрипт при
+     старте. Если JS не выполняется (превью в мобильном/облачном Claude) — таблицы просто
+     идут вниз страницы одной лентой, а не исчезают навсегда из-за inline display:none. */
+  .js-on .tableview{display:none}
+
+  /* Мобильная раскладка: колонки на всю ширину экрана с прилипанием — свайпнул,
+     встал ровно на следующую стадию, как в Trello. */
+  @media (max-width: 720px){
+    body{font-size:15px}
+    header{padding:12px 14px;gap:10px}
+    .brand{font-size:17px}
+    .stats{gap:16px;width:100%;justify-content:space-between}
+    .stat{font-size:11px}
+    .stat b{font-size:16px}
+    .tabs{padding:0 8px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .tab{padding:11px 14px;white-space:nowrap}
+
+    .board{
+      padding:12px 0 16px;
+      gap:0;
+      height:auto;
+      scroll-snap-type:x mandatory;
+      -webkit-overflow-scrolling:touch;
+      scroll-padding-left:12px;
+    }
+    .col{
+      min-width:86vw;max-width:86vw;
+      margin:0 6px;
+      scroll-snap-align:center;
+      max-height:none;
+    }
+    .col:first-child{margin-left:12px}
+    .col:last-child{margin-right:12px}
+    .col-body{overflow:visible;padding-bottom:10px}
+    .card{padding:12px 14px}
+    .card .nm{font-size:15px}
+    .card .co{font-size:13px}
+    .card .amt{font-size:16px}
+
+    .tableview{padding:12px;height:auto}
+    table{font-size:13px}
+    tbody td,thead th{padding:8px 10px}
+    .modal{padding:18px}
+  }
 </style>
 </head>
 <body>
@@ -99,14 +144,17 @@
 </div>
 
 <div class="board" id="board"></div>
-<div class="tableview" id="view-companies" style="display:none"></div>
-<div class="tableview" id="view-contacts" style="display:none"></div>
+<div class="tableview" id="view-companies"></div>
+<div class="tableview" id="view-contacts"></div>
 
 <div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
 
 <script src="data.js"></script>
 <script>
 (function(){
+  // Помечаем документ «JS работает» — по этому классу CSS включает переключение табов.
+  // Без него (превью не исполняет скрипты) доска и таблицы просто видны одной лентой.
+  document.documentElement.classList.add('js-on');
   const CRM = window.AXIMO_CRM;
   if(!CRM){ document.body.innerHTML='<p style="padding:40px">Не найдены данные CRM.</p>'; return; }
   const now = new Date();
