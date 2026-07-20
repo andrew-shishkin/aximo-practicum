@@ -32,6 +32,9 @@ def fail(msg, code=1):
 # иначе — позиционный номер урока.
 PING = "--ping" in sys.argv[1:]
 DONE = "--done" in sys.argv[1:]
+# --status N — какой это ключ (trial/full) и упрётся ли урок после N-го в пейволл.
+# Зовётся в конце последнего бесплатного урока, чтобы показать оффер сразу, а не ждать /L5.
+STATUS = "--status" in sys.argv[1:]
 _pos = [a for a in sys.argv[1:] if not a.startswith("-")]
 n = _pos[0] if _pos else "1"
 
@@ -142,6 +145,22 @@ if PING:
             print(f"KEY_UNCHECKED: сервер вернул {e.code} — не страшно, проверю ключ при запуске первого урока.")
     except Exception as e:
         print(f"KEY_UNCHECKED: не удалось проверить ключ сейчас ({e}). Это не критично — проверим при запуске первого урока.")
+    sys.exit(0)
+
+# --- СТАТУС КЛЮЧА (мягко: не смогли узнать — печатаем UNKNOWN и выходим 0) ---
+if STATUS:
+    st_url = (f"{SERVER}/?key={urllib.parse.quote(key)}&device={urllib.parse.quote(device_id)}"
+              f"&n={urllib.parse.quote(n)}&stage=status")
+    try:
+        with urllib.request.urlopen(st_url, timeout=15, context=ssl_ctx) as r:
+            sdata = json.loads(r.read().decode("utf-8"))
+        plan = sdata.get("plan", "full")
+        if sdata.get("next_is_paywall"):
+            print(f"PLAN={plan} NEXT=paywall")
+        else:
+            print(f"PLAN={plan} NEXT=open")
+    except Exception as e:
+        print(f"PLAN=unknown NEXT=unknown ({e})")
     sys.exit(0)
 
 # --- ОТМЕТКА «L1 пройден» (мягко: что бы ни случилось — выходим 0, урок ученику не ломаем) ---
