@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aximo CRM</title>
+<style>
+  :root{
+    --bg:#f1f2f4; --panel:#ffffff; --ink:#172b4d; --muted:#6b778c; --line:#e4e6ea;
+    --you:#2563eb; --serj:#7c3aed; --max:#475569;
+    --s-new:#6366f1; --s-qual:#0ea5e9; --s-demo:#14b8a6; --s-prop:#f59e0b;
+    --s-nego:#f97316; --s-inv:#8b5cf6; --s-won:#16a34a; --s-lost:#94a3b8;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
+  header{background:#fff;border-bottom:1px solid var(--line);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+  .brand{font-size:19px;font-weight:800;letter-spacing:.3px;color:#172b4d}
+  .brand b{color:#16a34a}
+  .stats{display:flex;gap:28px}
+  .stat{font-size:12px;color:var(--muted)}
+  .stat b{display:block;font-size:18px;color:var(--ink);font-weight:700;margin-top:2px}
+  .reset{display:none;border:1px solid var(--line);background:#fff;border-radius:7px;padding:6px 11px;font-size:12px;color:var(--muted);cursor:pointer}
+  .reset.show{display:inline-block}
+
+  .tabs{display:flex;gap:2px;padding:0 24px;background:#fff;border-bottom:1px solid var(--line)}
+  .tab{padding:11px 18px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+  .tab:hover{color:var(--ink)}
+  .tab.active{color:var(--ink);border-bottom-color:#16a34a}
+
+  .board{display:flex;gap:12px;padding:16px 24px 24px;overflow-x:auto;align-items:flex-start;height:calc(100vh - 108px)}
+  .col{background:#ebecf0;border-radius:10px;min-width:262px;max-width:262px;flex:0 0 auto;display:flex;flex-direction:column;max-height:100%}
+  .col-h{padding:11px 12px 8px;display:flex;align-items:center;justify-content:space-between}
+  .col-h .ttl{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#44546f}
+  .col-h .dot{width:8px;height:8px;border-radius:50%}
+  .col-h .cnt{font-size:11px;color:var(--muted);font-weight:600;background:#fff;border-radius:10px;padding:1px 8px}
+  .col-sum{padding:0 12px 8px;font-size:11px;color:var(--muted);font-weight:600}
+  .col-body{padding:0 8px 8px;overflow-y:auto;flex:1}
+  .col.over .col-body{outline:2px dashed #9aa5b1;outline-offset:-4px;border-radius:8px}
+
+  .card{background:var(--panel);border-radius:8px;padding:10px 12px;margin-bottom:8px;cursor:pointer;box-shadow:0 1px 1px rgba(9,30,66,.13);border-left:3px solid transparent}
+  .card:hover{box-shadow:0 3px 8px rgba(9,30,66,.18)}
+  .card.dragging{opacity:.4}
+  .card .nm{font-size:13px;font-weight:600;line-height:1.35;margin-bottom:3px}
+  .card .co{font-size:12px;color:var(--muted);margin-bottom:8px}
+  .card .amt{font-size:14px;font-weight:700;color:#172b4d}
+  .card .ft{display:flex;align-items:center;justify-content:space-between;margin-top:9px}
+  .card .ovd{font-size:11px;color:#b45309;font-weight:600;margin-top:6px}
+  .av{width:22px;height:22px;border-radius:50%;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .date{font-size:11px;color:var(--muted)}
+
+  .tableview{padding:16px 24px;overflow:auto;height:calc(100vh - 108px)}
+  table{border-collapse:collapse;width:100%;background:#fff;border-radius:10px;overflow:hidden;font-size:13px;box-shadow:0 1px 2px rgba(9,30,66,.1)}
+  thead th{position:sticky;top:0;background:#f7f8fa;text-align:left;padding:10px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:1px solid var(--line);user-select:none}
+  thead th:hover{color:var(--ink)}
+  tbody td{padding:9px 12px;border-bottom:1px solid #f0f1f3;white-space:nowrap}
+  tbody tr:hover{background:#f7f8fa}
+  td.mt{color:#c1c7d0}
+  .cnt-row{font-size:12px;color:var(--muted);margin-bottom:10px}
+
+  .overlay{position:fixed;inset:0;background:rgba(9,30,66,.5);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto;z-index:50}
+  .overlay.show{display:flex}
+  .modal{background:#fff;border-radius:12px;max-width:600px;width:100%;padding:24px;box-shadow:0 24px 60px rgba(9,30,66,.4)}
+  .modal .x{float:right;cursor:pointer;font-size:24px;color:var(--muted);line-height:1}
+  .modal h3{margin:0 0 12px;font-size:18px;padding-right:24px}
+  .mrow{display:flex;gap:18px;flex-wrap:wrap;align-items:center;margin-bottom:6px}
+  .mamt{font-size:22px;font-weight:800}
+  .selwrap{display:flex;align-items:center;gap:8px;margin:14px 0}
+  .selwrap label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  select{font-size:13px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;font-weight:600;cursor:pointer}
+  .kv{font-size:13px;color:#42526e;margin:5px 0}
+  .kv b{color:#172b4d}
+  .sec{border-top:1px solid var(--line);margin-top:16px;padding-top:14px}
+  .sec h4{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:0 0 9px}
+  .contact{font-size:13px;padding:7px 0;border-bottom:1px solid #f0f1f3}
+  .contact .t{color:var(--muted);font-size:12px}
+  .note{font-size:13px;background:#f7f8fa;border-radius:8px;padding:8px 10px;margin-bottom:7px;line-height:1.4}
+  .note .h{font-size:11px;color:var(--muted);margin-bottom:2px}
+  .msg{font-size:13px;border-left:3px solid var(--line);padding:5px 11px;margin-bottom:7px;line-height:1.4}
+  .msg.in{border-color:#0ea5e9} .msg.out{border-color:#2563eb}
+  .msg .h{font-size:11px;color:var(--muted);margin-bottom:2px}
+  .empty{font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Aximo <b>CRM</b></div>
+  <div class="stats">
+    <div class="stat">Открытый пайплайн<b id="sOpen">—</b></div>
+    <div class="stat">Счета к оплате<b id="sInv">—</b></div>
+    <div class="stat">Выиграно<b id="sWon">—</b></div>
+  </div>
+  <button class="reset" id="resetBtn">↺ Сбросить мои перемещения</button>
+</header>
+
+<div class="tabs">
+  <div class="tab active" data-t="deals">Сделки</div>
+  <div class="tab" data-t="companies">Компании</div>
+  <div class="tab" data-t="contacts">Контакты</div>
+</div>
+
+<div class="board" id="board"></div>
+<div class="tableview" id="view-companies" style="display:none"></div>
+<div class="tableview" id="view-contacts" style="display:none"></div>
+
+<div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
+
+<script src="data.js"></script>
+<script>
+(function(){
+  const CRM = window.AXIMO_CRM;
+  if(!CRM){ document.body.innerHTML='<p style="padding:40px">Не найдены данные CRM.</p>'; return; }
+  const now = new Date();
+  const companyById = Object.fromEntries(CRM.companies.map(c=>[c.id,c]));
+  const contactById = Object.fromEntries(CRM.contacts.map(c=>[c.id,c]));
+  const dealById = Object.fromEntries(CRM.deals.map(d=>[d.id,d]));
+  const columns = [...CRM.meta.activeStages, ...CRM.meta.closedStages];
+
+  const LABEL = {New:"Новые",Qualified:"Квалификация",Demo:"Демо",Proposal:"КП",Negotiation:"Переговоры",Invoice:"Счёт выставлен","Closed Won":"Выиграно","Closed Lost":"Проиграно"};
+  const COLOR = {New:"var(--s-new)",Qualified:"var(--s-qual)",Demo:"var(--s-demo)",Proposal:"var(--s-prop)",Negotiation:"var(--s-nego)",Invoice:"var(--s-inv)","Closed Won":"var(--s-won)","Closed Lost":"var(--s-lost)"};
+  const OWNER = {You:{i:"Я",c:"var(--you)"},"Serj Ivanov":{i:"SI",c:"var(--serj)"},"Max Petrov":{i:"MP",c:"var(--max)"}};
+
+  const money = n => '$'+(n||0).toLocaleString('en-US');
+  function offDate(d,p){ if(d[p+'HoursAgo']!=null) return new Date(now-d[p+'HoursAgo']*3600e3); if(d[p+'DaysAgo']!=null) return new Date(now-d[p+'DaysAgo']*86400e3); return null; }
+  function rel(date){ if(!date) return ''; const h=Math.round((now-date)/3600e3); if(h<1)return 'только что'; if(h<24)return h+' ч'; const d=Math.round(h/24); if(d<14)return d+' дн'; if(d<60)return Math.round(d/7)+' нед'; return Math.round(d/30)+' мес'; }
+  function absd(date){ return date?date.toLocaleDateString('ru-RU',{day:'numeric',month:'short',year:'2-digit'}):''; }
+
+  // ---- локальное сохранение перемещений (drag / смена статуса) ----
+  // Привязано к сигнатуре данных: как только Claude меняет data.js — мои ручные
+  // перемещения сбрасываются, и источником правды снова становится data.js.
+  const SIG = (function(){ let s=0,str=CRM.deals.map(d=>d.id+d.stage+d.amountUSD+d.name).join('|'); for(let i=0;i<str.length;i++){s=(s*31+str.charCodeAt(i))>>>0;} return s.toString(36); })();
+  const LSKEY = 'aximo_crm_'+SIG;
+  let overrides = {};
+  try{ overrides = JSON.parse(localStorage.getItem(LSKEY)||'{}'); }catch(e){ overrides={}; }
+  function effStage(d){ return overrides[d.id] || d.stage; }
+  function save(){ try{ Object.keys(overrides).length?localStorage.setItem(LSKEY,JSON.stringify(overrides)):localStorage.removeItem(LSKEY); }catch(e){} }
+  function setStage(id, stage){ const base=dealById[id]; if(!base||stage===effStage(base)) return; if(stage===base.stage) delete overrides[id]; else overrides[id]=stage; save(); render(); }
+
+  let dragId=null, didDrag=false;
+
+  function card(d){
+    const co = d.companyId ? (companyById[d.companyId]||{}).name : '';
+    const last = offDate(d,'lastActivity')||offDate(d,'created');
+    const ow = OWNER[d.owner]||{i:'?',c:'#999'};
+    const el = document.createElement('div');
+    el.className='card'; el.draggable=true; el.style.borderLeftColor=COLOR[effStage(d)];
+    let ovd='';
+    if(effStage(d)==='Invoice' && d.invoiceIssuedDaysAgo!=null){ const days=d.invoiceIssuedDaysAgo-(d.paymentTermsDays||0); if(days>0) ovd='<div class="ovd">просрочка '+days+' дн · '+(d.invoiceNumber||'')+'</div>'; else ovd='<div class="ovd" style="color:var(--muted)">'+(d.invoiceNumber||'')+'</div>'; }
+    el.innerHTML='<div class="nm">'+d.name+'</div>'+(co?'<div class="co">'+co+'</div>':'')+
+      '<div class="amt">'+money(d.amountUSD)+'</div>'+ovd+
+      '<div class="ft"><div class="av" style="background:'+ow.c+'" title="'+d.owner+'">'+ow.i+'</div><span class="date">'+rel(last)+'</span></div>';
+    el.addEventListener('dragstart',e=>{dragId=d.id;didDrag=true;el.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
+    el.addEventListener('dragend',()=>{el.classList.remove('dragging');setTimeout(()=>didDrag=false,50);});
+    el.addEventListener('click',()=>{ if(didDrag) return; openDeal(d); });
+    return el;
+  }
+
+  function render(){
+    const board=document.getElementById('board'); board.innerHTML='';
+    const eff = st => CRM.deals.filter(d=>effStage(d)===st);
+    columns.forEach(st=>{
+      const ds=eff(st);
+      const col=document.createElement('div'); col.className='col';
+      const sum=ds.reduce((a,d)=>a+(d.amountUSD||0),0);
+      col.innerHTML='<div class="col-h"><div class="ttl"><span class="dot" style="background:'+COLOR[st]+'"></span>'+LABEL[st]+'</div><span class="cnt">'+ds.length+'</span></div><div class="col-sum">'+money(sum)+'</div><div class="col-body"></div>';
+      const body=col.querySelector('.col-body');
+      ds.forEach(d=>body.appendChild(card(d)));
+      col.addEventListener('dragover',e=>{e.preventDefault();col.classList.add('over');});
+      col.addEventListener('dragleave',e=>{ if(!col.contains(e.relatedTarget)) col.classList.remove('over'); });
+      col.addEventListener('drop',e=>{e.preventDefault();col.classList.remove('over'); if(dragId) setStage(dragId,st);});
+      board.appendChild(col);
+    });
+    const sumStages=(arr)=>CRM.deals.filter(d=>arr.includes(effStage(d))).reduce((a,d)=>a+(d.amountUSD||0),0);
+    document.getElementById('sOpen').textContent=money(sumStages(['New','Qualified','Demo','Proposal','Negotiation']));
+    document.getElementById('sInv').textContent=money(sumStages(['Invoice']));
+    document.getElementById('sWon').textContent=money(sumStages(['Closed Won']));
+    document.getElementById('resetBtn').classList.toggle('show', Object.keys(overrides).length>0);
+  }
+
+  // ---- табличные виды (Компании / Контакты) ----
+  function makeTable(host, cols, rows, countLabel){
+    let sortKey=null, dir=1;
+    function draw(){
+      const data=[...rows];
+      if(sortKey){ const c=cols.find(x=>x.key===sortKey); data.sort((a,b)=>{ const x=(c.val(a)??'').toString().toLowerCase(), y=(c.val(b)??'').toString().toLowerCase(); return x<y?-dir:x>y?dir:0; }); }
+      let h='<div class="cnt-row">'+rows.length+' '+countLabel+' · клик по заголовку — сортировка</div><table><thead><tr>'+
+        cols.map(c=>'<th data-k="'+c.key+'">'+c.label+(sortKey===c.key?(dir>0?' ▲':' ▼'):'')+'</th>').join('')+'</tr></thead><tbody>'+
+        data.map(r=>'<tr>'+cols.map(c=>{ const v=c.val(r); const empty=(v==null||v===''); return '<td'+(empty?' class="mt"':'')+'>'+(empty?'—':v)+'</td>'; }).join('')+'</tr>').join('')+
+        '</tbody></table>';
+      host.innerHTML=h;
+      host.querySelectorAll('th').forEach(th=>th.onclick=()=>{ const k=th.dataset.k; if(sortKey===k) dir*=-1; else {sortKey=k;dir=1;} draw(); });
+    }
+    draw();
+  }
+  makeTable(document.getElementById('view-companies'), [
+    {key:'name',     label:'Компания',  val:r=>r.name},
+    {key:'domain',   label:'Домен',     val:r=>r.domain},
+    {key:'industry', label:'Индустрия', val:r=>r.industry},
+    {key:'country',  label:'Страна',    val:r=>r.country},
+    {key:'size',     label:'Размер',    val:r=>r.size},
+    {key:'inn',      label:'ИНН',       val:r=>r.inn}
+  ], CRM.companies, 'компаний');
+  makeTable(document.getElementById('view-contacts'), [
+    {key:'name',    label:'Имя',       val:r=>r.firstName+' '+r.lastName},
+    {key:'title',   label:'Должность', val:r=>r.title},
+    {key:'company', label:'Компания',  val:r=> r.companyId ? (companyById[r.companyId]||{}).name : null},
+    {key:'email',   label:'Email',     val:r=>r.email},
+    {key:'phone',   label:'Телефон',   val:r=>r.phone},
+    {key:'linkedin',label:'LinkedIn',  val:r=>r.linkedin}
+  ], CRM.contacts, 'контактов');
+
+  function showTab(t){
+    document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.t===t));
+    document.getElementById('board').style.display = t==='deals'?'flex':'none';
+    document.getElementById('view-companies').style.display = t==='companies'?'block':'none';
+    document.getElementById('view-contacts').style.display = t==='contacts'?'block':'none';
+  }
+  document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>showTab(t.dataset.t));
+
+  // ---- модалка сделки ----
+  const overlay=document.getElementById('overlay'), modal=document.getElementById('modal');
+  overlay.addEventListener('click',e=>{ if(e.target===overlay) overlay.classList.remove('show'); });
+  function openDeal(d){
+    const c=d.companyId?companyById[d.companyId]:null;
+    const created=offDate(d,'created'), last=offDate(d,'lastActivity'), closed=offDate(d,'closed');
+    const contacts=(d.contactIds||[]).map(id=>contactById[id]).filter(Boolean);
+    const opts=columns.map(s=>'<option value="'+s+'"'+(s===effStage(d)?' selected':'')+'>'+LABEL[s]+'</option>').join('');
+    let h='<span class="x" id="mx">×</span><h3>'+d.name+'</h3>'+
+      '<div class="mrow"><span class="mamt">'+money(d.amountUSD)+'</span><span class="kv">ответственный: <b>'+d.owner+'</b></span></div>'+
+      '<div class="selwrap"><label>Стадия</label><select id="stageSel">'+opts+'</select></div>'+
+      '<div class="kv">📅 Создано: <b>'+absd(created)+'</b>'+(closed?' · 🏁 закрыто: <b>'+absd(closed)+'</b>':' · активность: <b>'+absd(last)+'</b>')+'</div>'+
+      (d.nextStep?'<div class="kv">➡️ <b>Next step:</b> '+d.nextStep+'</div>':'')+
+      (d.invoiceNumber?'<div class="kv">🧾 <b>Счёт '+d.invoiceNumber+':</b> '+money(d.amountUSD)+', условия net-'+d.paymentTermsDays+', выставлен '+absd(offDate(d,'invoiceIssued'))+'</div>':'')+
+      (d.closeReason?'<div class="kv">❌ <b>Причина:</b> '+d.closeReason+'</div>':'')+
+      '<div class="sec"><h4>Компания</h4>'+(c?'<div class="kv"><b>'+c.name+'</b> · '+(c.industry||'индустрия не указана')+' · '+c.country+' · '+(c.domain||'домен не указан')+'</div>':'<div class="kv">не указана</div>')+'</div>'+
+      '<div class="sec"><h4>Контакты ('+contacts.length+')</h4>'+(contacts.length?contacts.map(p=>'<div class="contact"><b>'+p.firstName+' '+p.lastName+'</b> <span class="t">— '+p.title+'</span><br><span class="t">'+p.email+' · '+p.phone+'</span></div>').join(''):'<div class="empty">нет</div>')+'</div>'+
+      '<div class="sec"><h4>Заметки ('+(d.notes||[]).length+')</h4>'+((d.notes||[]).length?d.notes.map(n=>'<div class="note"><div class="h">'+n.author+' · '+rel(new Date(now-n.daysAgo*86400e3))+' назад</div>'+n.text+'</div>').join(''):'<div class="empty">нет</div>')+'</div>'+
+      '<div class="sec"><h4>Переписка ('+(d.correspondence||[]).length+')</h4>'+((d.correspondence||[]).length?d.correspondence.map(m=>'<div class="msg '+m.direction+'"><div class="h">'+(m.direction==='in'?'⬅ входящее':'➡ исходящее')+' · '+m.from+' · '+rel(new Date(now-m.daysAgo*86400e3))+' назад</div><b>'+m.subject+'</b><br>'+m.body+'</div>').join(''):'<div class="empty">нет</div>')+'</div>';
+    modal.innerHTML=h;
+    overlay.classList.add('show');
+    document.getElementById('mx').onclick=()=>overlay.classList.remove('show');
+    document.getElementById('stageSel').onchange=e=>{ setStage(d.id, e.target.value); openDeal(d); };
+  }
+
+  document.getElementById('resetBtn').onclick=()=>{ overrides={}; save(); render(); };
+  render();
+})();
+</script>
+</body>
+</html>
