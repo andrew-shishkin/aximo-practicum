@@ -16,6 +16,8 @@ pdf_comment.py — добавляет в PDF НАСТОЯЩИЕ коммента
 (page — номер страницы с 1; на одной странице можно несколько — иконки складываются столбиком, не налезая.)
 
 Зависимость: pypdf (чистый Python, ставится сам при первом запуске; pip-компиляция не нужна).
+Если поставить не удалось (нет сети или прав) — скрипт скажет об этом понятным текстом
+и подскажет запасной путь: выдать правки списком в чат.
 """
 import sys
 import os
@@ -23,14 +25,41 @@ import json
 import subprocess
 
 
-def ensure_pypdf():
+def _pypdf_available():
     try:
         import pypdf  # noqa: F401
-        return
-    except ImportError:
-        print("Ставлю pypdf (одноразово)…")
-        subprocess.run([sys.executable, "-m", "pip", "install", "--user", "--quiet", "pypdf"],
-                       check=True)
+        return True
+    except Exception:
+        return False
+
+
+def ensure_pypdf():
+    """Проверяем pypdf; если его нет — пробуем поставить, но не падаем трейсбеком."""
+    if _pypdf_available():
+        return True
+    print("Ставлю pypdf (одноразово)…")
+    attempts = [
+        [sys.executable, "-m", "pip", "install", "--quiet", "pypdf"],
+        [sys.executable, "-m", "pip", "install", "--quiet", "--user", "pypdf"],
+        [sys.executable, "-m", "pip", "install", "--quiet",
+         "--break-system-packages", "pypdf"],
+    ]
+    for cmd in attempts:
+        try:
+            subprocess.run(cmd, check=True, timeout=300,
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired, OSError):
+            continue
+        if _pypdf_available():
+            return True
+    print()
+    print("Не удалось установить библиотеку pypdf — похоже, нет доступа в сеть")
+    print("или прав на установку пакетов в этой среде.")
+    print()
+    print("Что делать: аннотации в PDF сейчас не поставить, но правки не потеряны —")
+    print("оформи их списком в чат (Пункт / Сейчас / Правка / Почему / Приоритет)")
+    print("или добавь комментарии через PDF-коннектор, если он подключён.")
+    return False
 
 
 def main():
@@ -41,7 +70,8 @@ def main():
     if not os.path.exists(inp):
         print("Не найден входной PDF:", inp)
         sys.exit(1)
-    ensure_pypdf()
+    if not ensure_pypdf():
+        sys.exit(1)
     from pypdf import PdfReader, PdfWriter
     from pypdf.annotations import Text
 
