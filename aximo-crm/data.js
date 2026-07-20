@@ -63,7 +63,7 @@ window.AXIMO_CRM = {
     { id: "c16", name: "Deel",           domain: "deel.com",       industry: "HR Tech",            country: "US", size: "3000+", inn: null, enrichmentTarget: null,         website: "https://deel.com" },
 
     // --- свежие входящие лиды (L6): сырые, только имя+корп.емейл у контакта; всё остальное обогащаем ---
-    { id: "c17", name: "Whizz",          domain: null,             industry: null,                 country: null, size: null,   inn: null, enrichmentTarget: "apollo",     website: null },
+    { id: "c17", name: "Whizz",          domain: "getwhizz.com",   industry: "Micromobility / Delivery logistics", country: "US", size: null,   inn: null, enrichmentTarget: "apollo",     website: "https://getwhizz.com" },
     { id: "c18", name: "HR-Link",        domain: null,             industry: null,                 country: null, size: null,   inn: null, enrichmentTarget: "datanewton", website: null },
     { id: "c19", name: "Wazzup24",       domain: null,             industry: null,                 country: null, size: null,   inn: null, enrichmentTarget: "datanewton", website: null },
 
@@ -132,10 +132,13 @@ window.AXIMO_CRM = {
   deals: [
     /* ---------- NEW ---------- */
     {
-      id: "d1", name: "Заявка с сайта — Whizz", companyId: "c17", contactIds: ["p17"], stage: "New",
-      amountUSD: 0, owner: "You", createdHoursAgo: 1, lastActivityHoursAgo: 1,
-      nextStep: "Квалифицировать: что за компания, наш ли ICP, найти ЛПР",
-      notes: [{ daysAgo: 0, author: "You", text: "Заявка с сайта. Всё, что есть: Daniel Roth, daniel.roth@getwhizz.com. Нужно обогатить (домен → сайт → ЛПР) и квалифицировать." }],
+      id: "d1", name: "Заявка с сайта — Whizz", companyId: "c17", contactIds: ["p17"], stage: "Qualified",
+      amountUSD: 0, owner: "You", createdHoursAgo: 1, lastActivityHoursAgo: 0,
+      nextStep: "Назначить звонок: уточнить размер штата и бюджет, предложить пилот AI-ассистента поддержки",
+      notes: [
+        { daysAgo: 0, author: "You", text: "Заявка с сайта. Всё, что есть: Daniel Roth, daniel.roth@getwhizz.com. Нужно обогатить (домен → сайт → ЛПР) и квалифицировать." },
+        { daysAgo: 0, author: "You", text: "Квалификация: Whizz — аренда электровелосипедов (rent-to-own) для курьеров доставки (DoorDash, Grubhub), хабы в 6 городах США. ICP: гео США ✓, рутина (поддержка арендаторов, диспетчеризация ремонта/смены батарей) ✓, размер/бюджет не подтверждён. Вердикт: КВАЛ-с-оговоркой. Заход — AI-ассистент поддержки арендаторов, пилот на одном городе." }
+      ],
       correspondence: []
     },
     {
