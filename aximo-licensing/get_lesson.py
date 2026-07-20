@@ -27,8 +27,11 @@ def fail(msg, code=1):
     sys.exit(code)
 
 
-# --ping — мягкая проверка ключа из L1 (валидация/активация, без урока); иначе позиционный номер урока
+# --ping — мягкая проверка ключа (валидация/активация, без урока), зовётся из бутстрапа L1;
+# --done — мягкая отметка «L1 пройден» (вторая точка воронки), зовётся в итогах L1;
+# иначе — позиционный номер урока.
 PING = "--ping" in sys.argv[1:]
+DONE = "--done" in sys.argv[1:]
 _pos = [a for a in sys.argv[1:] if not a.startswith("-")]
 n = _pos[0] if _pos else "1"
 
@@ -39,9 +42,16 @@ if os.path.exists(".env"):
         line = line.strip()
         if line.startswith("COURSE_KEY="):
             key = line.split("=", 1)[1].strip().strip('"').strip("'")  # последнее вхождение побеждает (если ключ переписали)
+# Фолбэк для облачных сессий (Claude в браузере/на телефоне): файловая система песочницы не
+# переживает новую сессию, поэтому .env там теряется. Ключ можно один раз положить в переменные
+# окружения самого Environment — тогда он подхватывается здесь и переживает сессии.
+if not key:
+    key = (os.environ.get("COURSE_KEY") or "").strip().strip('"').strip("'") or None
 if not key:
     env_path = os.path.abspath(".env")
-    fail("Нет COURSE_KEY в .env. Ключ приходил в Телеграм-боте в момент оплаты (покупал давно — поищи там).\n"
+    fail("Нет COURSE_KEY ни в .env, ни в переменных окружения. Ключ приходил в Телеграм-боте в момент оплаты (покупал давно — поищи там).\n"
+         "В облачной сессии (Claude в браузере или на телефоне) надёжнее всего добавить его в настройках Environment,\n"
+         "в разделе Environment variables, строкой COURSE_KEY=<ключ> — тогда он не потеряется при новой сессии.\n"
          "Добавь его в терминале (не в чат) — путь абсолютный, сработает из любой папки:\n"
          f"  macOS/Linux:  touch \"{env_path}\" && echo 'COURSE_KEY=<ключ>' >> \"{env_path}\"\n"
          f"  Windows (PS): Add-Content \"{env_path}\" 'COURSE_KEY=<ключ>'")
@@ -49,11 +59,14 @@ if not key:
 # --- device_id из ~/.aximo/ (вне папки курса → копирование папки НЕ копирует устройство) ---
 dev_dir = os.path.join(os.path.expanduser("~"), ".aximo")
 dev_file = os.path.join(dev_dir, "device")
-device_id = ""
-try:
-    device_id = open(dev_file, encoding="utf-8").read().strip()
-except Exception:
-    pass
+# AXIMO_DEVICE — для облачных сессий: домашняя папка песочницы не переживает новую сессию, и без
+# этого каждая сессия выглядела бы для сервера новым устройством и жгла лимит.
+device_id = (os.environ.get("AXIMO_DEVICE") or "").strip()
+if not device_id:
+    try:
+        device_id = open(dev_file, encoding="utf-8").read().strip()
+    except Exception:
+        pass
 if not device_id:
     os.makedirs(dev_dir, exist_ok=True)
     device_id = uuid.uuid4().hex
@@ -112,7 +125,7 @@ socket.getaddrinfo = _resolver
 
 # --- ПИНГ-проверка ключа из L1 (мягко: печатает статус и всегда выходит 0, не роняет L1) ---
 if PING:
-    ping_url = f"{SERVER}/?key={urllib.parse.quote(key)}&device={urllib.parse.quote(device_id)}&n=1"
+    ping_url = f"{SERVER}/?key={urllib.parse.quote(key)}&device={urllib.parse.quote(device_id)}&n=1&stage=ping"
     try:
         with urllib.request.urlopen(ping_url, timeout=15, context=ssl_ctx) as r:
             pdata = json.loads(r.read().decode("utf-8"))
@@ -129,6 +142,17 @@ if PING:
             print(f"KEY_UNCHECKED: сервер вернул {e.code} — не страшно, проверю ключ при запуске первого урока.")
     except Exception as e:
         print(f"KEY_UNCHECKED: не удалось проверить ключ сейчас ({e}). Это не критично — проверим при запуске первого урока.")
+    sys.exit(0)
+
+# --- ОТМЕТКА «L1 пройден» (мягко: что бы ни случилось — выходим 0, урок ученику не ломаем) ---
+if DONE:
+    done_url = f"{SERVER}/?key={urllib.parse.quote(key)}&device={urllib.parse.quote(device_id)}&n=1&stage=done"
+    try:
+        with urllib.request.urlopen(done_url, timeout=15, context=ssl_ctx) as r:
+            r.read()
+        print("OK: отметка о завершении урока 1 записана.")
+    except Exception as e:
+        print(f"UNCHECKED: не удалось записать отметку ({e}). На доступ ученика это не влияет.")
     sys.exit(0)
 
 # --- запрос на сервер ---
