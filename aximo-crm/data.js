@@ -65,7 +65,7 @@ window.AXIMO_CRM = {
     // --- свежие входящие лиды (L6): сырые, только имя+корп.емейл у контакта; всё остальное обогащаем ---
     { id: "c17", name: "Whizz",          domain: "getwhizz.com",   industry: "Micromobility / Delivery logistics", country: "US", size: null,   inn: null, enrichmentTarget: "apollo",     website: "https://getwhizz.com" },
     { id: "c18", name: "HR-Link",        domain: "hr-link.ru",     industry: "HR Tech / КЭДО",     country: "RU", size: "1000+", inn: "7801683312", enrichmentTarget: "datanewton", website: "https://hr-link.ru" },
-    { id: "c19", name: "Wazzup24",       domain: null,             industry: null,                 country: null, size: null,   inn: null, enrichmentTarget: "datanewton", website: null },
+    { id: "c19", name: "Wazzup24",       domain: "wazzup24.ru",    industry: "SaaS / CRM-интеграции", country: "RU", size: "50-1000", inn: "7734610563", enrichmentTarget: "datanewton", website: "https://wazzup24.ru" },
 
     // --- компании по закрытым сделкам (история) ---
     { id: "c20", name: "Lamoda",         domain: "lamoda.ru",      industry: "E-commerce / Fashion", country: "RU", size: "5000+", inn: null, enrichmentTarget: null, website: "https://lamoda.ru" },
@@ -152,10 +152,13 @@ window.AXIMO_CRM = {
       correspondence: []
     },
     {
-      id: "d3", name: "Заявка с сайта — Wazzup24", companyId: "c19", contactIds: ["p16"], stage: "New",
-      amountUSD: 0, owner: "You", createdDaysAgo: 1, lastActivityDaysAgo: 1,
-      nextStep: "Квалифицировать: что за компания, наш ли ICP",
-      notes: [{ daysAgo: 1, author: "You", text: "Заявка с сайта. Всё, что есть: Sergey Lebedev, sergey.lebedev@wazzup24.ru. Обогатить и квалифицировать." }],
+      id: "d3", name: "Заявка с сайта — Wazzup24", companyId: "c19", contactIds: ["p16"], stage: "Qualified",
+      amountUSD: 0, owner: "You", createdDaysAgo: 1, lastActivityDaysAgo: 0,
+      nextStep: "Назначить демо — предложить AI-ассистента первой линии поддержки",
+      notes: [
+        { daysAgo: 1, author: "You", text: "Заявка с сайта. Всё, что есть: Sergey Lebedev, sergey.lebedev@wazzup24.ru. Обогатить и квалифицировать." },
+        { daysAgo: 0, author: "You", text: "Квалификация: Wazzup24 (ООО «Ваззап»), ИНН 7734610563 — платформа интеграции мессенджеров с CRM, 30 000+ клиентов. Выручка выросла до ~2.43 млрд ₽ (2025). ICP: РФ ✓, цифровизация ✓, бюджет ✓, объём поддержки под AI-автоматизацию ✓. Вердикт: КВАЛ. Заход — AI-ассистент первой линии поддержки." }
+      ],
       correspondence: []
     },
 
