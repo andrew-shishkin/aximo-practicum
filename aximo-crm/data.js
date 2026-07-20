@@ -64,7 +64,7 @@ window.AXIMO_CRM = {
 
     // --- свежие входящие лиды (L6): сырые, только имя+корп.емейл у контакта; всё остальное обогащаем ---
     { id: "c17", name: "Whizz",          domain: "getwhizz.com",   industry: "Micromobility / Delivery logistics", country: "US", size: null,   inn: null, enrichmentTarget: "apollo",     website: "https://getwhizz.com" },
-    { id: "c18", name: "HR-Link",        domain: null,             industry: null,                 country: null, size: null,   inn: null, enrichmentTarget: "datanewton", website: null },
+    { id: "c18", name: "HR-Link",        domain: "hr-link.ru",     industry: "HR Tech / КЭДО",     country: "RU", size: "1000+", inn: "7801683312", enrichmentTarget: "datanewton", website: "https://hr-link.ru" },
     { id: "c19", name: "Wazzup24",       domain: null,             industry: null,                 country: null, size: null,   inn: null, enrichmentTarget: "datanewton", website: null },
 
     // --- компании по закрытым сделкам (история) ---
@@ -142,10 +142,13 @@ window.AXIMO_CRM = {
       correspondence: []
     },
     {
-      id: "d2", name: "Заявка с сайта — HR-Link", companyId: "c18", contactIds: ["p18"], stage: "New",
-      amountUSD: 0, owner: "You", createdHoursAgo: 4, lastActivityHoursAgo: 4,
-      nextStep: "Квалифицировать: что за компания, наш ли ICP, найти ЛПР и ИНН",
-      notes: [{ daysAgo: 0, author: "You", text: "Заявка с сайта. Всё, что есть: Egor Smirnov, egor.smirnov@hr-link.ru. Российская компания — обогатить через сайт (ИНН/выручка) и квалифицировать." }],
+      id: "d2", name: "Заявка с сайта — HR-Link", companyId: "c18", contactIds: ["p18"], stage: "Qualified",
+      amountUSD: 0, owner: "You", createdHoursAgo: 4, lastActivityHoursAgo: 0,
+      nextStep: "Назначить демо — предложить AI-автоматизацию обработки входящих обращений клиентов",
+      notes: [
+        { daysAgo: 0, author: "You", text: "Заявка с сайта. Всё, что есть: Egor Smirnov, egor.smirnov@hr-link.ru. Российская компания — обогатить через сайт (ИНН/выручка) и квалифицировать." },
+        { daysAgo: 0, author: "You", text: "Квалификация: HR-Link (ООО «Инновации в управлении кадрами»), ИНН 7801683312 — платформа КЭДО, часть экосистемы hh.ru, 8500+ клиентов. Выручка выросла с 6.8 млн ₽ (2020) до ~1.44 млрд ₽ (2025) — солидный бюджет. ICP: РФ ✓, цифровизация ✓, бюджет ✓, рутина обработки документов/обращений — прямое попадание ✓. Вердикт: КВАЛ. Заход — AI-автоматизация обработки входящих обращений клиентов." }
+      ],
       correspondence: []
     },
     {
