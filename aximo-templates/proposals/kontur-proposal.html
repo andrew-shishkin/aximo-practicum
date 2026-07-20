@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>КП — Kontur × Aximo</title>
+<style>
+  :root{ --ink:#0e1116; --muted:#5b6573; --line:#e6e9ee; --brand:#2f6bff; --bg:#ffffff; --soft:#f6f8fb; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; color:var(--ink); background:var(--soft); line-height:1.55; }
+  .page{ max-width:820px; margin:0 auto; background:var(--bg); }
+  .pad{ padding:48px 56px; }
+  .cover{ background:linear-gradient(135deg,#0e1116,#1c2740); color:#fff; padding:64px 56px; }
+  .cover .brand{ font-weight:700; letter-spacing:.04em; opacity:.85; }
+  .cover h1{ font-size:34px; margin:18px 0 6px; line-height:1.2; }
+  .cover .sub{ opacity:.8; font-size:16px; }
+  .cover .meta{ margin-top:28px; font-size:14px; opacity:.7; }
+  h2{ font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--brand); margin:0 0 12px; }
+  h3{ font-size:22px; margin:6px 0 10px; }
+  section{ border-top:1px solid var(--line); }
+  p{ margin:0 0 12px; color:#28303a; }
+  .muted{ color:var(--muted); }
+  .steps{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:12px; }
+  .step{ background:var(--soft); border:1px solid var(--line); border-radius:12px; padding:16px; }
+  .step .n{ width:26px;height:26px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;margin-bottom:8px; }
+  table{ width:100%; border-collapse:collapse; margin-top:8px; font-size:15px; }
+  th,td{ text-align:left; padding:12px 10px; border-bottom:1px solid var(--line); }
+  th{ font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); }
+  td.price{ text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
+  .total td{ border-top:2px solid var(--ink); border-bottom:none; font-weight:700; font-size:17px; }
+  .cases{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:12px; }
+  .case{ border:1px solid var(--line); border-radius:12px; padding:14px; font-size:14px; }
+  .case b{ display:block; font-size:20px; }
+  .cta{ background:var(--ink); color:#fff; border-radius:14px; padding:26px 28px; margin-top:8px; }
+  .cta a{ color:#9ec0ff; }
+  .foot{ padding:24px 56px; font-size:12px; color:var(--muted); }
+  @page{ size:A4; margin:0; }
+  @media print{
+    body{ background:#fff; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .page{ max-width:none; margin:0; }
+    section{ break-inside:avoid; }
+    .cover{ break-after:avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="cover">
+    <div class="brand">AXIMO · внедрение AI-автоматизаций</div>
+    <h1>Коммерческое предложение</h1>
+    <div class="sub">для компании Kontur</div>
+    <div class="meta">Подготовлено: сегодня · Контакт: hi@aximo.io</div>
+  </div>
+
+  <section class="pad">
+    <h2>Ваша задача</h2>
+    <h3>Ручная обработка входящих документов тормозит и ошибается</h3>
+    <p>Большой поток входящих документов от контрагентов — счета, договоры, акты — сейчас разбирают люди вручную: вычитывают, заносят реквизиты, раскладывают по процессам. Это долго, и на объёме появляются ошибки. Пик отчётности приближается, а хочется входить в него с уже работающим процессом, а не с настройкой на ходу.</p>
+  </section>
+
+  <section class="pad">
+    <h2>Что предлагаем</h2>
+    <h3>AI-обработка входящих документов</h3>
+    <p>Входящий документ распознаётся, AI вытаскивает ключевые поля — контрагента, суммы, даты, номера — сверяет со справочниками Kontur и кладёт в нужный процесс. Всё спорное и нестандартное уходит человеку на проверку, а не разбирается наугад.</p>
+    <div class="steps">
+      <div class="step"><div class="n">1</div>Документ приходит и распознаётся, поля извлекаются автоматически</div>
+      <div class="step"><div class="n">2</div>Сверка со справочниками Kontur, спорные случаи — на проверку человеку</div>
+      <div class="step"><div class="n">3</div>Готовые данные уходят в нужный процесс без ручного ввода</div>
+    </div>
+  </section>
+
+  <section class="pad">
+    <h2>Объём и этапы</h2>
+    <p>Три типа документов — счета, договоры, акты. Запускаем поэтапно, чтобы к пику отчётности у вас уже работал первый поток: <b>Этап 1</b> — внедрение + счета (4–5 недель), <b>Этап 2</b> — договоры и акты. Развёртывание — в контуре Kontur, чувствительные документы наружу не уходят. SLA под этот процесс: аптайм 99,5%, реакция на критичный инцидент в течение 4 рабочих часов, выделенный канал поддержки — фиксируем отдельным приложением к договору.</p>
+  </section>
+
+  <section class="pad">
+    <h2>Смета</h2>
+    <table>
+      <thead><tr><th>Позиция</th><th>Описание</th><th class="price">Стоимость</th></tr></thead>
+      <tbody>
+        <tr><td>Внедрение</td><td>Аудит процесса, настройка решения, интеграция, обучение команды</td><td class="price">$14 000</td></tr>
+        <tr><td>Поток «Счета»</td><td>Распознавание → извлечение полей → сверка → тестирование</td><td class="price">$8 000</td></tr>
+        <tr><td>Поток «Договоры»</td><td>Распознавание → извлечение полей → сверка → тестирование</td><td class="price">$8 000</td></tr>
+        <tr><td>Поток «Акты»</td><td>Распознавание → извлечение полей → сверка → тестирование</td><td class="price">$8 000</td></tr>
+        <tr class="total"><td colspan="2">Итого по проекту</td><td class="price">$38 000</td></tr>
+      </tbody>
+    </table>
+    <p class="muted" style="margin-top:10px">Оплата привязана к этапам: Этап 1 (внедрение + счета) — $22 000, Этап 2 (договоры + акты) — $16 000. Поддержка после запуска — $2 000/мес, опционально.</p>
+  </section>
+
+  <section class="pad">
+    <h2>Почему Aximo</h2>
+    <p>Мы внедряем AI-автоматизации под конкретный процесс, берём интеграцию и сопровождение на себя и отдаём результат неделями, а не кварталами.</p>
+    <div class="cases">
+      <div class="case"><b>-70% времени</b>на разбор входящих документов у клиентов из ритейла и логистики</div>
+      <div class="case"><b>99,5% аптайм</b>по SLA на процессах, развёрнутых в контуре клиента</div>
+      <div class="case"><b>4–5 недель</b>до рабочего первого потока — входите в пиковую нагрузку уже с решением</div>
+    </div>
+  </section>
+
+  <section class="pad">
+    <div class="cta">
+      <h2 style="color:#9ec0ff">Следующий шаг</h2>
+      <p style="color:#dfe6f2;margin:0">Готовы прислать проект договора с SLA отдельным приложением и зафиксировать сроки по этапам — жду вашего «ок» на старт.</p>
+    </div>
+  </section>
+
+  <div class="foot">Aximo · hi@aximo.io · предложение действительно 30 дней. Суммы указаны в USD без НДС.</div>
+
+</div>
+</body>
+</html>
