@@ -80,10 +80,48 @@
   .msg .h{font-size:11px;color:var(--muted);margin-bottom:2px}
   .empty{font-size:12px;color:var(--muted)}
 
-  /* Табы прячут секции только когда JS реально работает: класс js-on ставит скрипт при
-     старте. Если JS не выполняется (превью в мобильном/облачном Claude) — таблицы просто
-     идут вниз страницы одной лентой, а не исчезают навсегда из-за inline display:none. */
-  .js-on .tableview{display:none}
+  /* ---- Работа без JavaScript --------------------------------------------------
+     Превью HTML в мобильном/облачном Claude не выполняет скрипты. Поэтому переключение
+     разделов сделано на радиокнопках, а карточки сделок раскрываются через <details>.
+     Когда JS есть (обычный браузер), он ставит на <html> класс js-on, забирает управление
+     себе и проставляет display инлайном — инлайн выигрывает у правил ниже.
+
+     ВАЖНО про деградацию: превью может вырезать не только скрипты, но и интерактивные
+     теги (input, details). Поэтому значения по умолчанию выбраны так, чтобы при вырезании
+     оставалось ВИДНО ВСЁ, а не пусто: доска показана изначально, а прятать разделы умеют
+     только правила :checked — не сработали, значит просто ничего не спрячется. */
+  .vtab{display:none}
+  .board{display:flex}
+  .tableview{display:block}
+  #vt-comp:checked ~ .board,
+  #vt-cont:checked ~ .board{display:none}
+  #vt-deals:checked ~ #view-companies,
+  #vt-cont:checked  ~ #view-companies{display:none}
+  #vt-deals:checked ~ #view-contacts,
+  #vt-comp:checked  ~ #view-contacts{display:none}
+
+  .tabs-static{display:flex;gap:2px;padding:0 24px;background:#fff;border-bottom:1px solid var(--line)}
+  .tabs-static label{padding:11px 18px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+  #vt-deals:checked ~ .tabs-static label[for="vt-deals"],
+  #vt-comp:checked  ~ .tabs-static label[for="vt-comp"],
+  #vt-cont:checked  ~ .tabs-static label[for="vt-cont"]{color:var(--ink);border-bottom-color:#16a34a}
+
+  /* JS-версия табов и CSS-версия — взаимоисключающие */
+  .tabs{display:none}
+  .js-on .tabs{display:flex}
+  .js-on .tabs-static{display:none}
+
+  /* Карточка-раскрывашка (без JS). С JS доска перерисовывается скриптом и вместо
+     раскрытия работает модалка — эти правила туда просто не доезжают. */
+  details.card > summary{list-style:none;cursor:pointer;display:block}
+  details.card > summary::-webkit-details-marker{display:none}
+  details.card[open]{box-shadow:0 4px 14px rgba(9,30,66,.2)}
+  .dsec{border-top:1px solid var(--line);margin-top:12px;padding-top:10px}
+  .dsec h4{font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:0 0 7px}
+  .dkv{font-size:12.5px;color:#42526e;margin:4px 0;line-height:1.45}
+  .dkv b{color:#172b4d}
+  .more{font-size:11px;color:var(--muted);margin-top:8px}
+  details.card[open] .more{display:none}
 
   /* Мобильная раскладка: колонки на всю ширину экрана с прилипанием — свайпнул,
      встал ровно на следующую стадию, как в Trello. */
@@ -137,10 +175,22 @@
   <button class="reset" id="resetBtn">↺ Сбросить мои перемещения</button>
 </header>
 
+<!-- Радиокнопки переключают разделы без JS. Должны быть СОСЕДЯМИ .board/.tableview —
+     на этом держатся селекторы вида «#vt-comp:checked ~ #view-companies». -->
+<input type="radio" name="vtab" id="vt-deals" class="vtab" checked>
+<input type="radio" name="vtab" id="vt-comp" class="vtab">
+<input type="radio" name="vtab" id="vt-cont" class="vtab">
+
 <div class="tabs">
   <div class="tab active" data-t="deals">Сделки</div>
   <div class="tab" data-t="companies">Компании</div>
   <div class="tab" data-t="contacts">Контакты</div>
+</div>
+
+<div class="tabs-static">
+  <label for="vt-deals">Сделки</label>
+  <label for="vt-comp">Компании</label>
+  <label for="vt-cont">Контакты</label>
 </div>
 
 <div class="board" id="board"></div>

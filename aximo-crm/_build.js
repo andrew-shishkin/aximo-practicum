@@ -70,6 +70,51 @@ function rel(date) {
   return Math.round(d / 30) + ' мес';
 }
 
+const absd = (date) => (date ? date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: '2-digit' }) : '');
+const contactById = Object.fromEntries(CRM.contacts.map((c) => [c.id, c]));
+
+// Разворот карточки — то же, что показывает модалка на десктопе, минус смена стадии
+// (она требует скрипта). Без JS модалку не открыть, поэтому детали живут внутри <details>.
+function dealDetails(d) {
+  const c = d.companyId ? companyById[d.companyId] : null;
+  const created = offDate(d, 'created');
+  const last = offDate(d, 'lastActivity');
+  const closed = offDate(d, 'closed');
+  const contacts = (d.contactIds || []).map((id) => contactById[id]).filter(Boolean);
+  let h = '<div class="dsec">' +
+    '<div class="dkv">👤 Ответственный: <b>' + esc(d.owner) + '</b></div>' +
+    '<div class="dkv">📅 Создано: <b>' + absd(created) + '</b>' +
+    (closed ? ' · 🏁 закрыто: <b>' + absd(closed) + '</b>' : ' · активность: <b>' + absd(last) + '</b>') + '</div>' +
+    (d.nextStep ? '<div class="dkv">➡️ <b>Next step:</b> ' + esc(d.nextStep) + '</div>' : '') +
+    (d.invoiceNumber ? '<div class="dkv">🧾 <b>Счёт ' + esc(d.invoiceNumber) + ':</b> ' + money(d.amountUSD) +
+      ', условия net-' + esc(d.paymentTermsDays) + ', выставлен ' + absd(offDate(d, 'invoiceIssued')) + '</div>' : '') +
+    (d.closeReason ? '<div class="dkv">❌ <b>Причина:</b> ' + esc(d.closeReason) + '</div>' : '') +
+    '</div>';
+  h += '<div class="dsec"><h4>Компания</h4><div class="dkv">' +
+    (c ? '<b>' + esc(c.name) + '</b> · ' + esc(c.industry || 'индустрия не указана') + ' · ' + esc(c.country) : 'не указана') +
+    '</div></div>';
+  h += '<div class="dsec"><h4>Контакты (' + contacts.length + ')</h4>' +
+    (contacts.length
+      ? contacts.map((p) => '<div class="dkv"><b>' + esc(p.firstName + ' ' + p.lastName) + '</b> — ' + esc(p.title) +
+          '<br>' + esc(p.email) + (p.phone ? ' · ' + esc(p.phone) : '') + '</div>').join('')
+      : '<div class="dkv">нет</div>') + '</div>';
+  const notes = d.notes || [];
+  if (notes.length) {
+    h += '<div class="dsec"><h4>Заметки (' + notes.length + ')</h4>' +
+      notes.map((n) => '<div class="note"><div class="h">' + esc(n.author) + ' · ' +
+        rel(new Date(now - n.daysAgo * 86400e3)) + ' назад</div>' + esc(n.text) + '</div>').join('') + '</div>';
+  }
+  const corr = d.correspondence || [];
+  if (corr.length) {
+    h += '<div class="dsec"><h4>Переписка (' + corr.length + ')</h4>' +
+      corr.map((m) => '<div class="msg ' + esc(m.direction) + '"><div class="h">' +
+        (m.direction === 'in' ? '⬅ входящее' : '➡ исходящее') + ' · ' + esc(m.from) + ' · ' +
+        rel(new Date(now - m.daysAgo * 86400e3)) + ' назад</div><b>' + esc(m.subject) + '</b><br>' +
+        esc(m.body) + '</div>').join('') + '</div>';
+  }
+  return h;
+}
+
 function cardHtml(d) {
   const co = d.companyId ? (companyById[d.companyId] || {}).name : '';
   const last = offDate(d, 'lastActivity') || offDate(d, 'created');
@@ -81,12 +126,14 @@ function cardHtml(d) {
       ? '<div class="ovd">просрочка ' + days + ' дн · ' + esc(d.invoiceNumber || '') + '</div>'
       : '<div class="ovd" style="color:var(--muted)">' + esc(d.invoiceNumber || '') + '</div>';
   }
-  return '<div class="card" draggable="true" style="border-left-color:' + COLOR[d.stage] + '">' +
+  return '<details class="card" style="border-left-color:' + COLOR[d.stage] + '"><summary>' +
     '<div class="nm">' + esc(d.name) + '</div>' +
     (co ? '<div class="co">' + esc(co) + '</div>' : '') +
     '<div class="amt">' + money(d.amountUSD) + '</div>' + ovd +
     '<div class="ft"><div class="av" style="background:' + ow.c + '" title="' + esc(d.owner) + '">' + ow.i + '</div>' +
-    '<span class="date">' + rel(last) + '</span></div></div>';
+    '<span class="date">' + rel(last) + '</span></div>' +
+    '<div class="more">нажми, чтобы раскрыть ▾</div>' +
+    '</summary>' + dealDetails(d) + '</details>';
 }
 
 const columns = [].concat(CRM.meta.activeStages, CRM.meta.closedStages);
