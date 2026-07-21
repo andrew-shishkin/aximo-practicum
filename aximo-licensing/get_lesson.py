@@ -205,20 +205,90 @@ except Exception:
 if not data.get("ok") or "lesson" not in data or "sig" not in data:
     fail("В ответе нет подписанного урока.")
 
-# --- проверка подписи (cryptography ставится автоматически при первом запуске) ---
-try:
-    from cryptography.hazmat.primitives.serialization import load_pem_public_key
-    from cryptography.exceptions import InvalidSignature
-except ImportError:
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "--quiet", "cryptography"])
-    from cryptography.hazmat.primitives.serialization import load_pem_public_key
-    from cryptography.exceptions import InvalidSignature
+# --- проверка подписи Ed25519 на ЧИСТОМ Python (без внешних библиотек) ---
+# Раньше здесь бралась библиотека cryptography (тянет cffi). В облачных сессиях cffi/cryptography
+# часто установлены битыми → ассистент тратил старт первого урока на их «диагностику и починку».
+# Ниже — эталонный алгоритм из RFC 8032 (только verify): ничего ставить не нужно, cffi не участвует.
+_P = 2 ** 255 - 19
+_Q = 2 ** 252 + 27742317777372353535851937790883648493
+_D = (-121665 * pow(121666, _P - 2, _P)) % _P
+_SQRT_M1 = pow(2, (_P - 1) // 4, _P)
 
-pub = load_pem_public_key(PUBLIC_KEY_PEM)
+def _recover_x(y, sign):
+    if y >= _P:
+        return None
+    x2 = (y * y - 1) * pow(_D * y * y + 1, _P - 2, _P) % _P
+    if x2 == 0:
+        return None if sign else 0
+    x = pow(x2, (_P + 3) // 8, _P)
+    if (x * x - x2) % _P != 0:
+        x = x * _SQRT_M1 % _P
+    if (x * x - x2) % _P != 0:
+        return None
+    if (x & 1) != sign:
+        x = _P - x
+    return x
+
+def _pt_add(Pt, Qt):
+    A = (Pt[1] - Pt[0]) * (Qt[1] - Qt[0]) % _P
+    B = (Pt[1] + Pt[0]) * (Qt[1] + Qt[0]) % _P
+    C = 2 * Pt[3] * Qt[3] * _D % _P
+    Dd = 2 * Pt[2] * Qt[2] % _P
+    E, F, G, H = B - A, Dd - C, Dd + C, B + A
+    return (E * F % _P, G * H % _P, F * G % _P, E * H % _P)
+
+def _pt_mul(s, Pt):
+    Qt = (0, 1, 1, 0)
+    while s > 0:
+        if s & 1:
+            Qt = _pt_add(Qt, Pt)
+        Pt = _pt_add(Pt, Pt)
+        s >>= 1
+    return Qt
+
+def _pt_equal(Pt, Qt):
+    if (Pt[0] * Qt[2] - Qt[0] * Pt[2]) % _P != 0:
+        return False
+    if (Pt[1] * Qt[2] - Qt[1] * Pt[2]) % _P != 0:
+        return False
+    return True
+
+def _pt_decompress(s):
+    if len(s) != 32:
+        return None
+    y = int.from_bytes(s, "little")
+    sign = y >> 255
+    y &= (1 << 255) - 1
+    x = _recover_x(y, sign)
+    return None if x is None else (x, y, 1, x * y % _P)
+
+_g_y = 4 * pow(5, _P - 2, _P) % _P
+_g_x = _recover_x(_g_y, 0)
+_G = (_g_x, _g_y, 1, _g_x * _g_y % _P)
+
+def _ed25519_verify(public, message, signature):
+    if len(public) != 32 or len(signature) != 64:
+        return False
+    A = _pt_decompress(public)
+    if A is None:
+        return False
+    Rs = signature[:32]
+    R = _pt_decompress(Rs)
+    if R is None:
+        return False
+    s = int.from_bytes(signature[32:], "little")
+    if s >= _Q:
+        return False
+    import hashlib
+    h = int.from_bytes(hashlib.sha512(Rs + public + message).digest(), "little") % _Q
+    return _pt_equal(_pt_mul(s, _G), _pt_add(R, _pt_mul(h, A)))
+
+# сырой 32-байтный публичный ключ из PEM: SubjectPublicKeyInfo → последние 32 байта DER
+_pem_body = b"".join(l for l in PUBLIC_KEY_PEM.splitlines() if b"-----" not in l)
+_RAW_PUB = base64.b64decode(_pem_body)[-32:]
+
 msg = f"aximo-lesson:v1:{data['n']}\n{data['lesson']}".encode("utf-8")
-try:
-    pub.verify(base64.b64decode(data["sig"]), msg)
-except InvalidSignature:
+if not _ed25519_verify(_RAW_PUB, msg, base64.b64decode(data["sig"])):
     fail("Подпись урока не сходится — урок не подлинный, исполнять нельзя.")
 
 # --- только теперь сохраняем подлинный урок ---
